@@ -2,6 +2,7 @@ import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { adminLogin, adminLogout, approveSubmission, rejectSubmission } from "./actions";
 import { describeSubmission } from "./describe";
+import { SubmissionFields } from "./submission-fields";
 
 export default async function AdminPage({
   searchParams,
@@ -74,23 +75,23 @@ export default async function AdminPage({
               {sub.submitter_contact && ` (${sub.submitter_contact})`}
             </p>
             {sub.notes && <p className="mt-1 italic text-stone-600">Notes: {sub.notes}</p>}
-            <div className="mt-3 flex gap-3">
-              <form action={approveSubmission}>
-                <input type="hidden" name="id" value={sub.id} />
-                <button
-                  type="submit"
-                  className="rounded-md bg-green-700 px-4 py-2 text-white hover:bg-green-800"
-                >
-                  Approve
-                </button>
-              </form>
-              <form action={rejectSubmission}>
-                <input type="hidden" name="id" value={sub.id} />
-                <button type="submit" className="rounded-md bg-red-700 px-4 py-2 text-white hover:bg-red-800">
-                  Reject
-                </button>
-              </form>
-            </div>
+
+            <form action={approveSubmission}>
+              <input type="hidden" name="id" value={sub.id} />
+              <SubmissionFields sub={sub} />
+              <button
+                type="submit"
+                className="mt-3 rounded-md bg-green-700 px-4 py-2 text-white hover:bg-green-800"
+              >
+                Save &amp; Approve
+              </button>
+            </form>
+            <form action={rejectSubmission} className="mt-2">
+              <input type="hidden" name="id" value={sub.id} />
+              <button type="submit" className="rounded-md bg-red-700 px-4 py-2 text-white hover:bg-red-800">
+                Reject
+              </button>
+            </form>
           </li>
         ))}
         {(pending ?? []).length === 0 && <p className="text-stone-500">Nothing pending.</p>}
