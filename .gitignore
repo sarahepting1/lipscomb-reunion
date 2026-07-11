@@ -42,3 +42,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# original recipe book scans -- transcribed into src/data/recipes.ts
+/*.pdf
