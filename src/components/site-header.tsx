@@ -26,6 +26,11 @@ export async function SiteHeader() {
               Submit an Update
             </Link>
           )}
+          {user && (
+            <Link href="/link-person" className="text-stone-700 hover:text-stone-900">
+              Link My Profile
+            </Link>
+          )}
           {user ? (
             <form action={signOut}>
               <button type="submit" className="text-stone-700 hover:text-stone-900">
@@ -33,9 +38,14 @@ export async function SiteHeader() {
               </button>
             </form>
           ) : (
-            <Link href="/login" className="text-stone-700 hover:text-stone-900">
-              Log in
-            </Link>
+            <>
+              <Link href="/login" className="text-stone-700 hover:text-stone-900">
+                Log in
+              </Link>
+              <Link href="/signup" className="text-stone-700 hover:text-stone-900">
+                Sign up
+              </Link>
+            </>
           )}
         </nav>
       </div>

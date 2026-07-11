@@ -15,10 +15,12 @@ export function PersonPicker({
   fieldName,
   label,
   required,
+  allowManual = true,
 }: {
   fieldName: string;
   label: string;
   required?: boolean;
+  allowManual?: boolean;
 }) {
   const [mode, setMode] = useState<"search" | "manual">("search");
   const [term, setTerm] = useState("");
@@ -118,13 +120,15 @@ export function PersonPicker({
               ))}
             </ul>
           )}
-          <button
-            type="button"
-            onClick={() => setMode("manual")}
-            className="self-start text-sm text-amber-800 underline"
-          >
-            Can&apos;t find them? Enter a name manually
-          </button>
+          {allowManual && (
+            <button
+              type="button"
+              onClick={() => setMode("manual")}
+              className="self-start text-sm text-amber-800 underline"
+            >
+              Can&apos;t find them? Enter a name manually
+            </button>
+          )}
         </>
       )}
     </div>

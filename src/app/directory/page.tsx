@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { formatYears, formatCityState } from "@/lib/format";
+import { searchWords } from "@/lib/search";
 
 type Row = {
   id: string;
@@ -11,10 +12,6 @@ type Row = {
   city: string | null;
   state: string | null;
 };
-
-function escapeForOrFilter(value: string): string {
-  return value.replace(/[,()]/g, "");
-}
 
 export default async function DirectoryPage({
   searchParams,
@@ -31,14 +28,15 @@ export default async function DirectoryPage({
 
   let rows: Row[] = [];
 
+  const words = searchWords(search);
+
   if (user) {
     let query = supabase
       .from("people")
       .select("id,name,aka,birth_year,death_year,city,state")
       .order("name");
-    if (search) {
-      const safe = escapeForOrFilter(search);
-      query = query.or(`name.ilike.%${safe}%,aka.ilike.%${safe}%`);
+    for (const word of words) {
+      query = query.or(`name.ilike.%${word}%,aka.ilike.%${word}%`);
     }
     const { data } = await query;
     rows = data ?? [];
@@ -47,9 +45,8 @@ export default async function DirectoryPage({
       .from("people_public")
       .select("id,name,aka,birth_year,death_year")
       .order("name");
-    if (search) {
-      const safe = escapeForOrFilter(search);
-      query = query.or(`name.ilike.%${safe}%,aka.ilike.%${safe}%`);
+    for (const word of words) {
+      query = query.or(`name.ilike.%${word}%,aka.ilike.%${word}%`);
     }
     const { data } = await query;
     rows = (data ?? []).map((p) => ({ ...p, city: null, state: null }));

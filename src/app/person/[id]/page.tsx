@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatYears } from "@/lib/format";
+import { getAncestorTree, getDescendantTree, type TreeNode } from "@/lib/family-tree";
+
+const TREE_DEPTH = 3;
 
 function RelLink({ id, name }: { id: string | null; name: string }) {
   return id ? (
@@ -11,6 +14,23 @@ function RelLink({ id, name }: { id: string | null; name: string }) {
     </Link>
   ) : (
     <span>{name}</span>
+  );
+}
+
+function TreeBranch({ node }: { node: TreeNode }) {
+  if (node.next.length === 0) return null;
+  return (
+    <ul className="ml-4 space-y-1 border-l border-stone-200 pl-4">
+      {node.next.map((child, i) => (
+        <li key={child.id ?? i}>
+          <RelLink id={child.id} name={child.name} />
+          {child.relationship && child.relationship !== "Natural" && (
+            <span className="text-stone-500"> ({child.relationship})</span>
+          )}
+          <TreeBranch node={child} />
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -88,11 +108,14 @@ export default async function PersonPage({
   const { data: person } = await supabase.from("people").select("*").eq("id", id).maybeSingle();
   if (!person) notFound();
 
-  const [{ data: parentLinks }, { data: childLinks }, { data: marriages }] = await Promise.all([
-    supabase.from("parent_child").select("parent_id,parent_name,relationship").eq("child_id", id),
-    supabase.from("parent_child").select("child_id,child_name,relationship").eq("parent_id", id),
-    supabase.from("marriages").select("*").or(`husband_id.eq.${id},wife_id.eq.${id}`),
-  ]);
+  const [{ data: parentLinks }, { data: childLinks }, { data: marriages }, ancestorTree, descendantTree] =
+    await Promise.all([
+      supabase.from("parent_child").select("parent_id,parent_name,relationship").eq("child_id", id),
+      supabase.from("parent_child").select("child_id,child_name,relationship").eq("parent_id", id),
+      supabase.from("marriages").select("*").or(`husband_id.eq.${id},wife_id.eq.${id}`),
+      getAncestorTree(supabase, id, person.name, TREE_DEPTH),
+      getDescendantTree(supabase, id, person.name, TREE_DEPTH),
+    ]);
 
   const address = [person.street, person.city, person.state, person.zip].filter(Boolean).join(", ");
 
@@ -191,6 +214,32 @@ export default async function PersonPage({
           ) : (
             <p className="mt-2 text-stone-500">None on record.</p>
           )}
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold text-stone-900">Family Tree</h2>
+          <div className="mt-2 grid gap-6 sm:grid-cols-2">
+            <div>
+              <h3 className="text-sm font-medium uppercase tracking-wide text-stone-500">
+                Ancestors
+              </h3>
+              {ancestorTree.next.length > 0 ? (
+                <TreeBranch node={ancestorTree} />
+              ) : (
+                <p className="mt-2 text-stone-500">None on record.</p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-medium uppercase tracking-wide text-stone-500">
+                Descendants
+              </h3>
+              {descendantTree.next.length > 0 ? (
+                <TreeBranch node={descendantTree} />
+              ) : (
+                <p className="mt-2 text-stone-500">None on record.</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

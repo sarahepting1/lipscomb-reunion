@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PersonPicker } from "./person-picker";
+import { PersonPicker } from "@/components/person-picker";
 import { submitEvent } from "./actions";
 
 type EventType = "birth" | "death" | "marriage" | "address_update" | "correction";

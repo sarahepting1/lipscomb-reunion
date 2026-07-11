@@ -1,9 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-function escapeForOrFilter(value: string): string {
-  return value.replace(/[,()]/g, "");
-}
+import { searchWords } from "@/lib/search";
 
 export async function GET(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -20,13 +17,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  const safe = escapeForOrFilter(q);
-  const { data, error } = await supabase
-    .from("people")
-    .select("id,name,aka,birth_year,death_year")
-    .or(`name.ilike.%${safe}%,aka.ilike.%${safe}%`)
-    .order("name")
-    .limit(10);
+  let query = supabase.from("people").select("id,name,aka,birth_year,death_year").order("name").limit(10);
+  for (const word of searchWords(q)) {
+    query = query.or(`name.ilike.%${word}%,aka.ilike.%${word}%`);
+  }
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ results: [] }, { status: 500 });
