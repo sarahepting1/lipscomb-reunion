@@ -21,6 +21,11 @@ export async function SiteHeader() {
           <Link href="/recipes" className="text-stone-700 hover:text-stone-900">
             Recipes
           </Link>
+          {user && (
+            <Link href="/submit" className="text-stone-700 hover:text-stone-900">
+              Submit an Update
+            </Link>
+          )}
           {user ? (
             <form action={signOut}>
               <button type="submit" className="text-stone-700 hover:text-stone-900">
