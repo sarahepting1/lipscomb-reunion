@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { PersonPicker } from "@/components/person-picker";
+import { RecipePicker } from "@/components/recipe-picker";
 import { submitEvent } from "./actions";
 
-type EventType = "birth" | "death" | "marriage" | "address_update" | "correction";
+type EventType = "birth" | "death" | "marriage" | "address_update" | "correction" | "recipe_correction";
 
 const LABELS: Record<EventType, string> = {
   birth: "Birth",
@@ -12,10 +13,17 @@ const LABELS: Record<EventType, string> = {
   marriage: "Marriage",
   address_update: "Address update",
   correction: "Correction to existing info",
+  recipe_correction: "Correction to a recipe",
 };
 
-export function SubmitForm() {
-  const [eventType, setEventType] = useState<EventType>("birth");
+export function SubmitForm({
+  initialEventType,
+  initialRecipeSlug,
+}: {
+  initialEventType?: EventType;
+  initialRecipeSlug?: string;
+}) {
+  const [eventType, setEventType] = useState<EventType>(initialEventType ?? "birth");
 
   return (
     <form action={submitEvent} className="mt-8 flex flex-col gap-6">
@@ -147,6 +155,21 @@ export function SubmitForm() {
       {eventType === "correction" && (
         <>
           <PersonPicker fieldName="person" label="Which person is this about?" required />
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-stone-700">What needs to be corrected?</span>
+            <textarea
+              name="description"
+              required
+              rows={4}
+              className="rounded-md border border-stone-300 px-4 py-3 text-lg"
+            />
+          </label>
+        </>
+      )}
+
+      {eventType === "recipe_correction" && (
+        <>
+          <RecipePicker fieldName="recipe" label="Which recipe?" initialSlug={initialRecipeSlug} />
           <label className="flex flex-col gap-1">
             <span className="text-sm font-medium text-stone-700">What needs to be corrected?</span>
             <textarea

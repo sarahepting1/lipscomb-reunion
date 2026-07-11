@@ -78,7 +78,7 @@ parent_child (
 
 submissions (
   id uuid primary key default gen_random_uuid(),
-  event_type text not null check (event_type in ('birth','death','marriage','address_update','correction')),
+  event_type text not null check (event_type in ('birth','death','marriage','address_update','correction','recipe_correction')), -- recipe_correction added in Phase 7
   person_id text references people(id),   -- null for new people (births/marriages)
   payload jsonb not null,                 -- the submitted fields
   submitter_name text not null,
@@ -101,7 +101,7 @@ RLS: anonymous role can SELECT people where status in ('deceased','presumed_dece
 ## Pages
 
 1. `/` — public. Reunion info (date/location placeholder Sarah will edit), welcome text, link to recipes and directory.
-2. `/recipes` — public. Placeholder for now; recipe content arrives in a later phase as markdown.
+2. `/recipes` — public. 138 recipes transcribed from the 1998 reunion cookbook (`src/data/recipes.ts`, plain data file, not markdown — scale made per-file markdown impractical), grouped by category with name/contributor search. `/recipes/[slug]` shows one recipe with a "suggest a correction" link into `/submit`.
 3. `/directory` — gated. Searchable, alphabetical list of all people. Search by name (case-insensitive, matches aka too). Show name, birth–death years, city/state.
 4. `/person/[id]` — gated. Full profile: dates, locations, address, parents, spouses, children, and a Family Tree section (ancestors/descendants, 3 generations out) — each relationship linked to its person page when an ID exists, plain text when not.
 5. `/submit` — gated. One form, event-type picker changes the fields:
@@ -110,6 +110,7 @@ RLS: anonymous role can SELECT people where status in ('deceased','presumed_dece
    - **Marriage**: two people (picker + free text), date
    - **Address update**: person (picker), new address fields
    - **Correction**: person (picker), free-text description
+   - **Recipe correction** (Phase 7): recipe (picker over `src/data/recipes.ts`), free-text description. Deep-linkable via `/submit?recipe=<slug>` from a recipe page, which preselects this type and the recipe.
    - All types: submitter name (required), contact (optional), notes
 6. `/admin` — gated by a separate admin password (env var `ADMIN_PASSWORD`, checked server-side; don't build a second auth system). Lists pending submissions with the parsed payload; Approve applies the change to the data tables inside a transaction, Reject just marks it. Show approved/rejected history below.
 7. `/login` — the shared family login (still works).

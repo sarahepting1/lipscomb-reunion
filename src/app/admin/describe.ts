@@ -45,6 +45,8 @@ export function describeSubmission(sub: Submission): string {
         p,
         "description"
       )}"`;
+    case "recipe_correction":
+      return `Recipe correction for "${s(p, "recipe_title")}": "${s(p, "description")}"`;
     default:
       return JSON.stringify(p);
   }

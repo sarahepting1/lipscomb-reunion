@@ -5,7 +5,7 @@ import { SubmitForm } from "./submit-form";
 export default async function SubmitPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; submitted?: string }>;
+  searchParams: Promise<{ error?: string; submitted?: string; recipe?: string }>;
 }) {
   const supabase = await createServerSupabaseClient();
   const {
@@ -16,7 +16,7 @@ export default async function SubmitPage({
     redirect("/login");
   }
 
-  const { error, submitted } = await searchParams;
+  const { error, submitted, recipe } = await searchParams;
 
   return (
     <div className="mx-auto w-full max-w-xl flex-1 px-6 py-12">
@@ -32,7 +32,10 @@ export default async function SubmitPage({
       )}
       {error && <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-red-800">{error}</p>}
 
-      <SubmitForm />
+      <SubmitForm
+        initialEventType={recipe ? "recipe_correction" : undefined}
+        initialRecipeSlug={recipe}
+      />
     </div>
   );
 }

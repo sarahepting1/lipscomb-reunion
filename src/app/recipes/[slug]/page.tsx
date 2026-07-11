@@ -39,6 +39,17 @@ export default async function RecipePage({
       {recipe.note && (
         <p className="mt-6 rounded-md bg-stone-100 px-4 py-3 italic text-stone-600">{recipe.note}</p>
       )}
+
+      <p className="mt-8 text-stone-500">
+        Notice an error in this recipe?{" "}
+        <Link
+          href={`/submit?recipe=${recipe.slug}`}
+          className="font-medium text-amber-800 underline"
+        >
+          Suggest a correction
+        </Link>{" "}
+        (log in required).
+      </p>
     </div>
   );
 }

@@ -2263,3 +2263,12 @@ export const recipes: Recipe[] = [
       "Melt butter. Add to potatoes and mix. Add sugar. Mix until only small lumps remain. Add milk and egg one at a time, mixing after each addition. Add vanilla. Bake at 300 degrees for 1 hour. Pie is done when knife blade inserted 1/2 way between edge and center comes out clean.",
   },
 ];
+
+// Lightweight index for client components (e.g. the recipe picker) so they
+// don't need to bundle every recipe's full ingredients/instructions text.
+export const recipeIndex = recipes.map(({ slug, title, contributor, category }) => ({
+  slug,
+  title,
+  contributor,
+  category,
+}));

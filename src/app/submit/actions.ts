@@ -104,6 +104,19 @@ export async function submitEvent(formData: FormData) {
       };
       break;
     }
+    case "recipe_correction": {
+      const recipeSlug = str(formData, "recipe_slug");
+      const recipeTitle = str(formData, "recipe_title");
+      const description = str(formData, "description");
+      if (!recipeTitle) redirect(`/submit?error=${encodeURIComponent("Please specify which recipe this is about.")}`);
+      if (!description) redirect(`/submit?error=${encodeURIComponent("Please describe the correction.")}`);
+      payload = {
+        recipe_slug: recipeSlug,
+        recipe_title: recipeTitle,
+        description,
+      };
+      break;
+    }
     default:
       redirect(`/submit?error=${encodeURIComponent("Please choose what you're submitting.")}`);
   }
