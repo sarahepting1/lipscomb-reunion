@@ -69,7 +69,12 @@ export async function approveSubmission(formData: FormData) {
         zip: str(formData, "zip"),
       };
       break;
-    case "correction":
+    case "correction": {
+      const description = str(formData, "description");
+      if (!description) redirect(`/admin?error=${encodeURIComponent("Description can't be empty.")}`);
+      newPayload = { ...p, description, corrected_name: str(formData, "corrected_name") };
+      break;
+    }
     case "recipe_correction": {
       const description = str(formData, "description");
       if (!description) redirect(`/admin?error=${encodeURIComponent("Description can't be empty.")}`);

@@ -11,7 +11,7 @@ function s(payload: Record<string, unknown>, key: string): string {
 const inputClass = "rounded-md border border-stone-300 px-3 py-2";
 const labelClass = "flex flex-col gap-1 text-sm text-stone-600";
 
-export function SubmissionFields({ sub }: { sub: Submission }) {
+export function SubmissionFields({ sub, currentName }: { sub: Submission; currentName?: string }) {
   const p = sub.payload ?? {};
 
   switch (sub.event_type) {
@@ -99,10 +99,23 @@ export function SubmissionFields({ sub }: { sub: Submission }) {
         <div className="mt-3 flex flex-col gap-3">
           <p className="text-sm text-stone-500">
             Person: {s(p, "person_name")}
-            {p.person_id ? "" : " (unmatched)"}
+            {p.person_id ? "" : " (unmatched — can't apply a name fix without a matched record)"}
           </p>
+          {p.person_id ? (
+            <label className={labelClass}>
+              Full name (editing this updates the directory record)
+              <input
+                name="corrected_name"
+                defaultValue={currentName ?? s(p, "person_name")}
+                className={inputClass}
+              />
+            </label>
+          ) : (
+            <input type="hidden" name="corrected_name" value="" />
+          )}
           <label className={labelClass}>
-            Description
+            Description (submitter&apos;s note — for anything beyond the name, fix it yourself in
+            Supabase&apos;s Table Editor)
             <textarea name="description" defaultValue={s(p, "description")} rows={3} className={inputClass} />
           </label>
         </div>

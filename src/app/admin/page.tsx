@@ -49,6 +49,18 @@ export default async function AdminPage({
       .limit(50),
   ]);
 
+  // For "correction" submissions, look up each person's *current* name so the
+  // editable name field reflects what's in the database now, not just
+  // whatever the submitter typed at submission time.
+  const correctionPersonIds = (pending ?? [])
+    .filter((s) => s.event_type === "correction" && s.person_id)
+    .map((s) => s.person_id as string);
+  const currentNames: Record<string, string> = {};
+  if (correctionPersonIds.length > 0) {
+    const { data: people } = await admin.from("people").select("id,name").in("id", correctionPersonIds);
+    for (const p of people ?? []) currentNames[p.id] = p.name;
+  }
+
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <div className="flex items-center justify-between">
@@ -78,7 +90,7 @@ export default async function AdminPage({
 
             <form action={approveSubmission}>
               <input type="hidden" name="id" value={sub.id} />
-              <SubmissionFields sub={sub} />
+              <SubmissionFields sub={sub} currentName={sub.person_id ? currentNames[sub.person_id] : undefined} />
               <button
                 type="submit"
                 className="mt-3 rounded-md bg-green-700 px-4 py-2 text-white hover:bg-green-800"
